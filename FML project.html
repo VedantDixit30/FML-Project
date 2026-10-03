@@ -1,0 +1,3127 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ClassifyLab | Classification Algorithms</title>
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+
+        /* =========================================================
+           GLOBAL
+        ========================================================= */
+
+        :root {
+            --navy: #232122;
+            --navy-light: #302e2f;
+            --green: #C3D69B;
+            --green-dark: #9eb56d;
+
+            --blue: #2B7BBA;
+            --blue-light: #5fa6d8;
+
+            --bg: #f4f7f9;
+            --card: #ffffff;
+            --text: #20252b;
+            --muted: #69727d;
+            --border: #e5e9ed;
+
+            --success: #2e8b57;
+            --danger: #d9534f;
+
+            --shadow:
+                0 10px 30px rgba(35, 33, 34, 0.08);
+
+            --radius: 18px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: "Inter", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            transition: 0.3s ease;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        button,
+        select,
+        input {
+            font-family: inherit;
+        }
+
+        .container {
+            width: min(1180px, 92%);
+            margin: auto;
+        }
+
+
+        /* =========================================================
+           LOADING SCREEN
+        ========================================================= */
+
+        #loader {
+            position: fixed;
+            inset: 0;
+            background: var(--navy);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+
+        .loader-content {
+            text-align: center;
+            color: white;
+        }
+
+        .loader-logo {
+            width: 65px;
+            height: 65px;
+            background: var(--green);
+            color: var(--navy);
+            border-radius: 18px;
+            display: grid;
+            place-items: center;
+            font-size: 25px;
+            font-weight: 800;
+            margin: auto auto 20px;
+            animation: pulse 1.4s infinite;
+        }
+
+        .loader-content p {
+            font-size: 14px;
+            color: #cfd3d6;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.08);
+            }
+        }
+
+
+        /* =========================================================
+           NAVBAR
+        ========================================================= */
+
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(35, 33, 34, 0.96);
+            backdrop-filter: blur(12px);
+            color: white;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .nav-inner {
+            min-height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 800;
+            font-size: 19px;
+        }
+
+        .brand-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 11px;
+            background: var(--green);
+            color: var(--navy);
+            display: grid;
+            place-items: center;
+            font-weight: 800;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: #e7e7e7;
+            font-size: 14px;
+            transition: 0.25s;
+        }
+
+        .nav-links a:hover {
+            color: var(--green);
+        }
+
+        .theme-btn {
+            width: 40px;
+            height: 40px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: transparent;
+            color: white;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 17px;
+        }
+
+        .menu-btn {
+            display: none;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 25px;
+            cursor: pointer;
+        }
+
+
+        /* =========================================================
+           HERO
+        ========================================================= */
+
+        .hero {
+            background:
+                radial-gradient(
+                    circle at 80% 20%,
+                    rgba(195,214,155,0.12),
+                    transparent 30%
+                ),
+                var(--navy);
+            color: white;
+            padding: 90px 0 75px;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1.25fr 0.75fr;
+            gap: 50px;
+            align-items: center;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(195,214,155,0.12);
+            border: 1px solid rgba(195,214,155,0.25);
+            color: var(--green);
+            padding: 7px 13px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .hero h1 {
+            font-size: clamp(38px, 5vw, 65px);
+            line-height: 1.05;
+            letter-spacing: -2px;
+            margin-bottom: 20px;
+        }
+
+        .hero h1 span {
+            color: var(--green);
+        }
+
+        .hero p {
+            color: #c8cbd0;
+            max-width: 650px;
+            font-size: 17px;
+            margin-bottom: 30px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 13px 20px;
+            border-radius: 11px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.25s;
+        }
+
+        .btn-primary {
+            background: var(--green);
+            color: var(--navy);
+        }
+
+        .btn-primary:hover {
+            background: #d5e4b2;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+        }
+
+        .btn-outline:hover {
+            border-color: var(--green);
+            color: var(--green);
+        }
+
+        .hero-visual {
+            min-height: 280px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 24px;
+            padding: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .model-visual {
+            width: 100%;
+        }
+
+        .visual-row {
+            display: flex;
+            align-items: end;
+            justify-content: center;
+            gap: 13px;
+            height: 190px;
+        }
+
+        .bar {
+            width: 35px;
+            border-radius: 8px 8px 0 0;
+            background: var(--green);
+            animation: grow 1.2s ease;
+        }
+
+        .bar:nth-child(1) { height: 90px; }
+        .bar:nth-child(2) { height: 125px; }
+        .bar:nth-child(3) { height: 155px; }
+        .bar:nth-child(4) { height: 175px; }
+        .bar:nth-child(5) { height: 145px; }
+        .bar:nth-child(6) { height: 180px; }
+        .bar:nth-child(7) { height: 165px; }
+
+        @keyframes grow {
+            from {
+                height: 0;
+            }
+        }
+
+
+        /* =========================================================
+           STATS
+        ========================================================= */
+
+        .stats {
+            margin-top: -35px;
+            position: relative;
+            z-index: 3;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+        }
+
+        .stat-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 23px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            transition: 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-label {
+            color: var(--muted);
+            font-size: 13px;
+            margin-bottom: 7px;
+        }
+
+        .stat-value {
+            font-size: 30px;
+            font-weight: 800;
+        }
+
+        .stat-card.highlight {
+            border-top: 4px solid var(--green-dark);
+        }
+
+
+        /* =========================================================
+           SECTIONS
+        ========================================================= */
+
+        section {
+            padding: 90px 0;
+        }
+
+        .section-header {
+            max-width: 700px;
+            margin-bottom: 40px;
+        }
+
+        .eyebrow {
+            color: var(--blue);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-size: 12px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .section-header h2 {
+            font-size: 34px;
+            letter-spacing: -1px;
+            margin-bottom: 10px;
+        }
+
+        .section-header p {
+            color: var(--muted);
+        }
+
+
+        /* =========================================================
+           ABOUT
+        ========================================================= */
+
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 22px;
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 28px;
+        }
+
+        .dataset-card {
+            display: flex;
+            gap: 18px;
+            align-items: flex-start;
+        }
+
+        .card-icon {
+            min-width: 48px;
+            height: 48px;
+            background: rgba(43,123,186,0.1);
+            color: var(--blue);
+            border-radius: 13px;
+            display: grid;
+            place-items: center;
+            font-size: 22px;
+        }
+
+        .dataset-card h3 {
+            margin-bottom: 5px;
+        }
+
+        .dataset-card p {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .mini-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .mini-stat {
+            background: var(--bg);
+            border-radius: 12px;
+            padding: 15px;
+        }
+
+        .mini-stat strong {
+            display: block;
+            font-size: 22px;
+        }
+
+        .mini-stat span {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+
+        /* =========================================================
+           ALGORITHMS
+        ========================================================= */
+
+        .algorithm-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+        }
+
+        .algorithm-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 23px;
+            box-shadow: var(--shadow);
+            transition: 0.3s;
+        }
+
+        .algorithm-card:hover {
+            transform: translateY(-7px);
+            border-color: var(--green-dark);
+        }
+
+        .algorithm-number {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: var(--navy);
+            color: var(--green);
+            display: grid;
+            place-items: center;
+            font-weight: 800;
+            margin-bottom: 17px;
+        }
+
+        .algorithm-card h3 {
+            font-size: 17px;
+            margin-bottom: 8px;
+        }
+
+        .algorithm-card p {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+
+        /* =========================================================
+           RESULTS
+        ========================================================= */
+
+        .results-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 850px;
+        }
+
+        th {
+            text-align: left;
+            padding: 15px;
+            background: var(--navy);
+            color: white;
+            font-size: 12px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        th:first-child {
+            border-radius: 10px 0 0 0;
+        }
+
+        th:last-child {
+            border-radius: 0 10px 0 0;
+        }
+
+        td {
+            padding: 16px 15px;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+
+        tr {
+            transition: 0.2s;
+        }
+
+        tbody tr:hover {
+            background: rgba(43,123,186,0.04);
+        }
+
+        .best-row {
+            background: rgba(195,214,155,0.25);
+            font-weight: 600;
+        }
+
+        .algorithm-name {
+            font-weight: 700;
+        }
+
+        .accuracy-pill {
+            display: inline-block;
+            padding: 5px 9px;
+            background: rgba(195,214,155,0.35);
+            border-radius: 50px;
+            color: #3e5c20;
+            font-weight: 700;
+        }
+
+
+        /* =========================================================
+           CHARTS
+        ========================================================= */
+
+        .chart-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        select {
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--text);
+            padding: 11px 14px;
+            border-radius: 10px;
+            outline: none;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 22px;
+        }
+
+        .chart-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+        }
+
+        .chart-card.full {
+            grid-column: span 2;
+        }
+
+        .chart-card h3 {
+            font-size: 17px;
+            margin-bottom: 5px;
+        }
+
+        .chart-card > p {
+            color: var(--muted);
+            font-size: 12px;
+            margin-bottom: 20px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 320px;
+        }
+
+
+        /* =========================================================
+           TRY IT
+        ========================================================= */
+
+        .try-section {
+            background: var(--navy);
+            color: white;
+        }
+
+        .try-section .section-header p {
+            color: #c8cbd0;
+        }
+
+        .upload-box {
+            border: 2px dashed rgba(195,214,155,0.5);
+            border-radius: 18px;
+            padding: 45px 25px;
+            text-align: center;
+            background: rgba(255,255,255,0.04);
+            transition: 0.3s;
+        }
+
+        .upload-box:hover {
+            border-color: var(--green);
+            background: rgba(195,214,155,0.05);
+        }
+
+        .upload-icon {
+            font-size: 38px;
+            margin-bottom: 12px;
+        }
+
+        .upload-box h3 {
+            margin-bottom: 6px;
+        }
+
+        .upload-box p {
+            color: #b9bdc2;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .file-label {
+            display: inline-block;
+            background: var(--green);
+            color: var(--navy);
+            padding: 12px 18px;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .try-controls {
+            margin-top: 25px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .control-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 23px;
+            border-radius: 16px;
+        }
+
+        .control-card h4 {
+            margin-bottom: 15px;
+        }
+
+        .try-select {
+            width: 100%;
+            background: #302e2f;
+            color: white;
+            border-color: rgba(255,255,255,0.2);
+        }
+
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            color: #d7dade;
+            font-size: 13px;
+        }
+
+        .run-btn {
+            margin-top: 20px;
+        }
+
+        #fileName {
+            margin-top: 12px;
+            color: var(--green);
+            font-size: 13px;
+        }
+
+
+        /* =========================================================
+           FINDINGS
+        ========================================================= */
+
+        .findings-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 18px;
+        }
+
+        .finding {
+            display: flex;
+            gap: 15px;
+            padding: 23px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+
+        .finding-icon {
+            width: 40px;
+            height: 40px;
+            min-width: 40px;
+            border-radius: 50%;
+            background: rgba(195,214,155,0.3);
+            color: #536d2d;
+            display: grid;
+            place-items: center;
+            font-weight: 800;
+        }
+
+        .finding p {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+
+        /* =========================================================
+           FOOTER
+        ========================================================= */
+
+        footer {
+            background: #171617;
+            color: white;
+            padding: 50px 0 25px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 1fr 250px;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .footer-brand {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .footer-brand .brand-icon {
+            width: 45px;
+            height: 45px;
+        }
+
+        footer p {
+            color: #aeb1b5;
+            font-size: 13px;
+            margin-bottom: 7px;
+        }
+
+        .college-logo {
+            width: 130px;
+            height: 130px;
+            border-radius: 18px;
+            border: 1px solid rgba(255,255,255,0.15);
+            display: grid;
+            place-items: center;
+            color: var(--green);
+            text-align: center;
+            font-weight: 800;
+            padding: 10px;
+            background: rgba(255,255,255,0.04);
+        }
+
+        .copyright {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+        }
+
+
+        /* =========================================================
+           TOOLTIP
+        ========================================================= */
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+        }
+
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            width: 210px;
+            bottom: 130%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--navy);
+            color: white;
+            padding: 10px;
+            border-radius: 9px;
+            font-size: 11px;
+            font-weight: 400;
+            z-index: 50;
+            transition: 0.2s;
+        }
+
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+
+        /* =========================================================
+           DARK MODE
+        ========================================================= */
+
+        body.dark {
+            --bg: #111415;
+            --card: #1b1f20;
+            --text: #f0f2f3;
+            --muted: #a5adb4;
+            --border: #2b3032;
+            --shadow: 0 10px 30px rgba(0,0,0,0.25);
+        }
+
+        body.dark .mini-stat {
+            background: #252a2b;
+        }
+
+        body.dark .stat-card,
+        body.dark .algorithm-card,
+        body.dark .chart-card,
+        body.dark .finding,
+        body.dark .card {
+            background: var(--card);
+        }
+
+
+        /* =========================================================
+           RESPONSIVE
+        ========================================================= */
+
+        @media (max-width: 950px) {
+
+            .hero-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .algorithm-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-card.full {
+                grid-column: span 1;
+            }
+
+        }
+
+        @media (max-width: 700px) {
+
+            section {
+                padding: 65px 0;
+            }
+
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 72px;
+                left: 0;
+                right: 0;
+                background: var(--navy);
+                flex-direction: column;
+                padding: 25px;
+                gap: 18px;
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+
+            .menu-btn {
+                display: block;
+            }
+
+            .nav-actions {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .about-grid,
+            .try-controls,
+            .findings-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .algorithm-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero {
+                padding: 65px 0 65px;
+            }
+
+            .hero h1 {
+                letter-spacing: -1px;
+            }
+
+        }
+
+        @media (max-width: 450px) {
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .checkbox-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+            }
+
+            .hero-buttons .btn {
+                width: 100%;
+            }
+
+        }
+
+    </style>
+</head>
+
+<body>
+
+<!-- =============================================================
+     LOADING SCREEN
+============================================================= -->
+
+<div id="loader">
+    <div class="loader-content">
+        <div class="loader-logo">CL</div>
+        <strong>ClassifyLab</strong>
+        <p>Loading classification dashboard...</p>
+    </div>
+</div>
+
+
+<!-- =============================================================
+     NAVBAR
+============================================================= -->
+
+<nav class="navbar">
+
+    <div class="container nav-inner">
+
+        <a href="#home" class="brand">
+            <div class="brand-icon">CL</div>
+            ClassifyLab
+        </a>
+
+        <ul class="nav-links" id="navLinks">
+            <li><a href="#home">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#algorithms">Algorithms</a></li>
+            <li><a href="#results">Results</a></li>
+            <li><a href="#charts">Charts</a></li>
+            <li><a href="#try">Try It</a></li>
+            <li><a href="#findings">Findings</a></li>
+        </ul>
+
+        <div class="nav-actions">
+
+            <button
+                class="theme-btn"
+                onclick="toggleTheme()"
+                title="Toggle light/dark mode"
+            >
+                ◐
+            </button>
+
+            <button
+                class="menu-btn"
+                onclick="toggleMenu()"
+            >
+                ☰
+            </button>
+
+        </div>
+
+    </div>
+
+</nav>
+
+
+<!-- =============================================================
+     HERO
+============================================================= -->
+
+<section class="hero" id="home">
+
+    <div class="container hero-grid">
+
+        <div>
+
+            <div class="badge">
+                ● Machine Learning Research Dashboard
+            </div>
+
+            <h1>
+                Comparative Study of
+                <span>Classification Algorithms</span>
+            </h1>
+
+            <p>
+                Evaluate and compare multiple classification techniques
+                on a common dataset using consistent preprocessing,
+                cross-validation, and performance metrics.
+            </p>
+
+            <div class="hero-buttons">
+
+                <a href="#results" class="btn btn-primary">
+                    View Results →
+                </a>
+
+                <a href="#try" class="btn btn-outline">
+                    Upload Your Dataset
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <div class="hero-visual">
+
+            <div class="model-visual">
+
+                <div class="visual-row">
+
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =============================================================
+     STAT CARDS
+============================================================= -->
+
+<div class="stats">
+
+    <div class="container stats-grid">
+
+        <div class="stat-card">
+
+            <div class="stat-label">
+                Records
+            </div>
+
+            <div class="stat-value">
+                569
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-label">
+                Features
+            </div>
+
+            <div class="stat-value">
+                30
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-label">
+                Algorithms
+            </div>
+
+            <div class="stat-value">
+                7
+            </div>
+
+        </div>
+
+
+        <div class="stat-card highlight">
+
+            <div class="stat-label">
+                Best Accuracy
+            </div>
+
+            <div class="stat-value">
+                98.25%
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =============================================================
+     ABOUT
+============================================================= -->
+
+<section id="about">
+
+    <div class="container">
+
+        <div class="section-header">
+
+            <div class="eyebrow">
+                Research Setup
+            </div>
+
+            <h2>
+                About the Study
+            </h2>
+
+            <p>
+                A standardized experimental setup allows the seven
+                classification algorithms to be compared fairly.
+            </p>
+
+        </div>
+
+
+        <div class="about-grid">
+
+            <div class="card">
+
+                <div class="dataset-card">
+
+                    <div class="card-icon">
+                        ◈
+                    </div>
+
+                    <div>
+
+                        <h3>
+                            Breast Cancer Wisconsin Diagnostic
+                        </h3>
+
+                        <p>
+                            A widely used binary classification dataset
+                            containing diagnostic measurements from breast
+                            cancer cell nuclei.
+                        </p>
+
+                        <div class="mini-stats">
+
+                            <div class="mini-stat">
+                                <strong>357</strong>
+                                <span>Benign</span>
+                            </div>
+
+                            <div class="mini-stat">
+                                <strong>212</strong>
+                                <span>Malignant</span>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="dataset-card">
+
+                    <div class="card-icon">
+                        ⚙
+                    </div>
+
+                    <div>
+
+                        <h3>
+                            Methodology
+                        </h3>
+
+                        <p>
+                            Consistent preprocessing and validation were
+                            applied before comparing the classification
+                            models.
+                        </p>
+
+                        <div class="mini-stats">
+
+                            <div class="mini-stat">
+                                <strong>80:20</strong>
+                                <span>Stratified Split</span>
+                            </div>
+
+                            <div class="mini-stat">
+                                <strong>5-Fold</strong>
+                                <span>Cross Validation</span>
+                            </div>
+
+                            <div class="mini-stat">
+                                <strong>StandardScaler</strong>
+                                <span>Feature Scaling</span>
+                            </div>
+
+                            <div class="mini-stat">
+                                <strong>Binary</strong>
+                                <span>Classification</span>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =============================================================
+     ALGORITHMS
+============================================================= -->
+
+<section id="algorithms">
+
+    <div class="container">
+
+        <div class="section-header">
+
+            <div class="eyebrow">
+                Models
+            </div>
+
+            <h2>
+                Classification Algorithms
+            </h2>
+
+            <p>
+                Seven commonly used classification techniques are
+                evaluated under the same experimental conditions.
+            </p>
+
+        </div>
+
+
+        <div class="algorithm-grid">
+
+
+            <div class="algorithm-card">
+
+                <div class="algorithm-number">01</div>
+
+                <h3>Logistic Regression</h3>
+
+                <p>
+                    A linear probabilistic classifier that models the
+                    probability of a binary outcome.
+                </p>
+
+            </div>
+
+
+            <div class="algorithm-card">
+
+                <div class="algorithm-number">02</div>
+
+                <h3>K-Nearest Neighbors</h3>
+
+                <p>
+                    Classifies observations according to the labels of
+                    nearby training examples.
+                </p>
+
+            </div>
+
+
+            <div class="algorithm-card">
+
+                <div class="algorithm-number">03</div>
+
+                <h3>Decision Tree</h3>
+
+                <p>
+                    Uses a tree structure of feature-based decisions
+                    to reach a classification.
+                </p>
+
+            </div>
+
+
+            <div class="algorithm-card">
+
+                <div class="algorithm-number">04</div>
+
+                <h3>Random Forest</h3>
+
+                <p>
+                    Combines multiple decision trees to improve
+                    robustness and generalization.
+                </p>
+
+            </div>
+
+
+            <div class="algorithm-card">
+
+                <div class="algorithm-number">05</div>
+
+                <h3>SVM (RBF)</h3>
+
+                <p>
+                    Finds a separating boundary using a radial basis
+                    function kernel for nonlinear patterns.
+                </p>
+
+            </div>
+
+
+            <div class="algorithm-card">
+
+                <div class="algorithm-number">06</div>
+
+                <h3>Naive Bayes</h3>
+
+                <p>
+                    A probabilistic classifier based on Bayes' theorem
+                    and conditional independence assumptions.
+                </p>
+
+            </div>
+
+
+            <div class="algorithm-card">
+
+                <div class="algorithm-number">07</div>
+
+                <h3>Gradient Boosting</h3>
+
+                <p>
+                    Builds an ensemble sequentially, correcting errors
+                    made by previous weak learners.
+                </p>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =============================================================
+     RESULTS TABLE
+============================================================= -->
+
+<section id="results">
+
+    <div class="container">
+
+        <div class="section-header">
+
+            <div class="eyebrow">
+                Performance
+            </div>
+
+            <h2>
+                Model Comparison
+            </h2>
+
+            <p>
+                Click a column heading to sort the results.
+            </p>
+
+        </div>
+
+
+        <div class="card results-wrapper">
+
+            <table id="resultsTable">
+
+                <thead>
+
+                    <tr>
+
+                        <th onclick="sortTable(0)">
+                            Algorithm ↕
+                        </th>
+
+                        <th onclick="sortTable(1)">
+                            Accuracy ↕
+                        </th>
+
+                        <th onclick="sortTable(2)">
+
+                            <span class="tooltip">
+
+                                Precision ⓘ
+
+                                <span class="tooltip-text">
+                                    Precision is the proportion of
+                                    positive predictions that are
+                                    actually positive.
+                                </span>
+
+                            </span>
+
+                        </th>
+
+                        <th onclick="sortTable(3)">
+
+                            <span class="tooltip">
+
+                                Recall ⓘ
+
+                                <span class="tooltip-text">
+                                    Recall measures how many actual
+                                    positive cases were correctly
+                                    identified.
+                                </span>
+
+                            </span>
+
+                        </th>
+
+                        <th onclick="sortTable(4)">
+
+                            <span class="tooltip">
+
+                                F1 ⓘ
+
+                                <span class="tooltip-text">
+                                    F1-score is the harmonic mean of
+                                    Precision and Recall.
+                                </span>
+
+                            </span>
+
+                        </th>
+
+                        <th onclick="sortTable(5)">
+
+                            <span class="tooltip">
+
+                                ROC-AUC ⓘ
+
+                                <span class="tooltip-text">
+                                    ROC-AUC measures how effectively
+                                    a classifier separates the classes
+                                    across decision thresholds.
+                                </span>
+
+                            </span>
+
+                        </th>
+
+                        <th onclick="sortTable(6)">
+                            CV Accuracy ↕
+                        </th>
+
+                        <th onclick="sortTable(7)">
+                            Training Time ↕
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    <tr class="best-row">
+
+                        <td class="algorithm-name">
+                            SVM (RBF)
+                        </td>
+
+                        <td>
+                            <span class="accuracy-pill">98.25%</span>
+                        </td>
+
+                        <td>98.20%</td>
+                        <td>97.60%</td>
+                        <td>97.90%</td>
+                        <td>99.10%</td>
+                        <td>97.85%</td>
+                        <td>0.032s</td>
+
+                    </tr>
+
+
+                    <tr>
+
+                        <td class="algorithm-name">
+                            Logistic Regression
+                        </td>
+
+                        <td>
+                            <span class="accuracy-pill">98.25%</span>
+                        </td>
+
+                        <td>98.00%</td>
+                        <td>98.00%</td>
+                        <td>98.00%</td>
+                        <td>99.20%</td>
+                        <td>97.75%</td>
+                        <td>0.021s</td>
+
+                    </tr>
+
+
+                    <tr>
+
+                        <td class="algorithm-name">
+                            Random Forest
+                        </td>
+
+                        <td>97.37%</td>
+                        <td>97.10%</td>
+                        <td>96.50%</td>
+                        <td>96.80%</td>
+                        <td>98.70%</td>
+                        <td>96.90%</td>
+                        <td>0.089s</td>
+
+                    </tr>
+
+
+                    <tr>
+
+                        <td class="algorithm-name">
+                            Gradient Boosting
+                        </td>
+
+                        <td>96.49%</td>
+                        <td>96.20%</td>
+                        <td>95.80%</td>
+                        <td>96.00%</td>
+                        <td>98.30%</td>
+                        <td>96.10%</td>
+                        <td>0.074s</td>
+
+                    </tr>
+
+
+                    <tr>
+
+                        <td class="algorithm-name">
+                            KNN
+                        </td>
+
+                        <td>95.61%</td>
+                        <td>95.40%</td>
+                        <td>94.90%</td>
+                        <td>95.10%</td>
+                        <td>97.50%</td>
+                        <td>95.20%</td>
+                        <td>0.006s</td>
+
+                    </tr>
+
+
+                    <tr>
+
+                        <td class="algorithm-name">
+                            Naive Bayes
+                        </td>
+
+                        <td>94.74%</td>
+                        <td>94.50%</td>
+                        <td>93.90%</td>
+                        <td>94.20%</td>
+                        <td>97.10%</td>
+                        <td>94.30%</td>
+                        <td>0.004s</td>
+
+                    </tr>
+
+
+                    <tr>
+
+                        <td class="algorithm-name">
+                            Decision Tree
+                        </td>
+
+                        <td>91.23%</td>
+                        <td>90.80%</td>
+                        <td>89.70%</td>
+                        <td>90.20%</td>
+                        <td>91.60%</td>
+                        <td>90.80%</td>
+                        <td>0.009s</td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =============================================================
+     CHARTS
+============================================================= -->
+
+<section id="charts">
+
+    <div class="container">
+
+        <div class="section-header">
+
+            <div class="eyebrow">
+                Visualization
+            </div>
+
+            <h2>
+                Interactive Analysis
+            </h2>
+
+            <p>
+                Explore the performance differences between the
+                classification algorithms.
+            </p>
+
+        </div>
+
+
+        <div class="charts-grid">
+
+
+            <!-- METRIC BAR CHART -->
+
+            <div class="chart-card">
+
+                <div class="chart-controls">
+
+                    <div>
+
+                        <h3>
+                            Metric Comparison
+                        </h3>
+
+                        <p>
+                            Compare algorithm performance.
+                        </p>
+
+                    </div>
+
+                    <select id="metricSelect"
+                            onchange="updateMetricChart()">
+
+                        <option value="accuracy">
+                            Accuracy
+                        </option>
+
+                        <option value="precision">
+                            Precision
+                        </option>
+
+                        <option value="recall">
+                            Recall
+                        </option>
+
+                        <option value="f1">
+                            F1 Score
+                        </option>
+
+                        <option value="auc">
+                            ROC-AUC
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <div class="chart-container">
+
+                    <canvas id="metricChart"></canvas>
+
+                </div>
+
+            </div>
+
+
+            <!-- ROC CHART -->
+
+            <div class="chart-card">
+
+                <div class="chart-controls">
+
+                    <div>
+
+                        <h3>
+                            ROC Curves
+                        </h3>
+
+                        <p>
+                            Receiver operating characteristic curves.
+                        </p>
+
+                    </div>
+
+                    <select id="rocModel">
+
+                        <option>All Models</option>
+                        <option>SVM (RBF)</option>
+                        <option>Logistic Regression</option>
+                        <option>Random Forest</option>
+
+                    </select>
+
+                </div>
+
+                <div class="chart-container">
+
+                    <canvas id="rocChart"></canvas>
+
+                </div>
+
+            </div>
+
+
+            <!-- CONFUSION MATRIX -->
+
+            <div class="chart-card">
+
+                <div class="chart-controls">
+
+                    <div>
+
+                        <h3>
+                            Confusion Matrix
+                        </h3>
+
+                        <p>
+                            Example matrix for the selected model.
+                        </p>
+
+                    </div>
+
+                    <select id="matrixModel"
+                            onchange="updateMatrix()">
+
+                        <option value="svm">
+                            SVM (RBF)
+                        </option>
+
+                        <option value="logistic">
+                            Logistic Regression
+                        </option>
+
+                        <option value="forest">
+                            Random Forest
+                        </option>
+
+                        <option value="tree">
+                            Decision Tree
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <div
+                    id="matrix"
+                    style="
+                        display:grid;
+                        grid-template-columns:repeat(2,1fr);
+                        gap:10px;
+                        max-width:420px;
+                        margin:30px auto;
+                    "
+                >
+
+                </div>
+
+            </div>
+
+
+            <!-- SCATTER -->
+
+            <div class="chart-card">
+
+                <h3>
+                    Accuracy vs Training Time
+                </h3>
+
+                <p>
+                    Observe the relationship between performance
+                    and computational time.
+                </p>
+
+                <div class="chart-container">
+
+                    <canvas id="scatterChart"></canvas>
+
+                </div>
+
+            </div>
+
+
+            <!-- FEATURE IMPORTANCE -->
+
+            <div class="chart-card full">
+
+                <h3>
+                    Top-10 Feature Importance
+                </h3>
+
+                <p>
+                    Example relative feature importance for the
+                    classification model.
+                </p>
+
+                <div class="chart-container">
+
+                    <canvas id="featureChart"></canvas>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =============================================================
+     TRY IT
+============================================================= -->
+
+<section class="try-section" id="try">
+
+    <div class="container">
+
+        <div class="section-header">
+
+            <div class="eyebrow" style="color:#C3D69B;">
+                Experiment
+            </div>
+
+            <h2>
+                Try It Yourself
+            </h2>
+
+            <p>
+                Upload your own CSV dataset and configure a
+                classification experiment.
+            </p>
+
+        </div>
+
+
+        <div class="upload-box">
+
+            <div class="upload-icon">
+                ↑
+            </div>
+
+            <h3>
+                Upload CSV Dataset
+            </h3>
+
+            <p>
+                Select a CSV file from your computer.
+            </p>
+
+            <label
+                for="csvFile"
+                class="file-label"
+            >
+                Choose CSV File
+            </label>
+
+            <input
+                type="file"
+                id="csvFile"
+                accept=".csv"
+                onchange="showFileName()"
+            >
+
+            <div id="fileName">
+            </div>
+
+        </div>
+
+
+        <div class="try-controls">
+
+
+            <div class="control-card">
+
+                <h4>
+                    Target Column
+                </h4>
+
+                <select
+                    id="targetColumn"
+                    class="try-select"
+                >
+
+                    <option>
+                        Select target column
+                    </option>
+
+                    <option>
+                        diagnosis
+                    </option>
+
+                    <option>
+                        target
+                    </option>
+
+                    <option>
+                        class
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="control-card">
+
+                <h4>
+                    Select Algorithms
+                </h4>
+
+                <div class="checkbox-grid">
+
+                    <label class="checkbox-item">
+                        <input type="checkbox" checked>
+                        Logistic Regression
+                    </label>
+
+                    <label class="checkbox-item">
+                        <input type="checkbox" checked>
+                        KNN
+                    </label>
+
+                    <label class="checkbox-item">
+                        <input type="checkbox" checked>
+                        Decision Tree
+                    </label>
+
+                    <label class="checkbox-item">
+                        <input type="checkbox" checked>
+                        Random Forest
+                    </label>
+
+                    <label class="checkbox-item">
+                        <input type="checkbox" checked>
+                        SVM (RBF)
+                    </label>
+
+                    <label class="checkbox-item">
+                        <input type="checkbox" checked>
+                        Naive Bayes
+                    </label>
+
+                    <label class="checkbox-item">
+                        <input type="checkbox" checked>
+                        Gradient Boosting
+                    </label>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <button
+            class="btn btn-primary run-btn"
+            onclick="runComparison()"
+        >
+            ▶ Run Comparison
+        </button>
+
+        <button
+            class="btn btn-outline run-btn"
+            onclick="downloadResults()"
+        >
+            ↓ Download Results as CSV
+        </button>
+
+
+        <div
+            id="runMessage"
+            style="
+                margin-top:20px;
+                color:#C3D69B;
+                display:none;
+            "
+        >
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =============================================================
+     FINDINGS
+============================================================= -->
+
+<section id="findings">
+
+    <div class="container">
+
+        <div class="section-header">
+
+            <div class="eyebrow">
+                Summary
+            </div>
+
+            <h2>
+                Key Findings
+            </h2>
+
+            <p>
+                Main observations from the comparative experiment.
+            </p>
+
+        </div>
+
+
+        <div class="findings-grid">
+
+
+            <div class="finding">
+
+                <div class="finding-icon">
+                    ✓
+                </div>
+
+                <div>
+
+                    <h3>
+                        Strongest Accuracy
+                    </h3>
+
+                    <p>
+                        SVM and Logistic Regression achieved the
+                        highest reported accuracy of 98.25%.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="finding">
+
+                <div class="finding-icon">
+                    ✓
+                </div>
+
+                <div>
+
+                    <h3>
+                        Simple Models Performed Strongly
+                    </h3>
+
+                    <p>
+                        Scaled linear models were competitive with,
+                        and in this comparison matched or exceeded,
+                        ensemble methods.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="finding">
+
+                <div class="finding-icon">
+                    !
+                </div>
+
+                <div>
+
+                    <h3>
+                        Decision Tree
+                    </h3>
+
+                    <p>
+                        Decision Tree produced the lowest reported
+                        accuracy at 91.23% in this study.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="finding">
+
+                <div class="finding-icon">
+                        +
+                </div>
+
+                <div>
+
+                    <h3>
+                        Recall Matters
+                    </h3>
+
+                    <p>
+                        In medical classification, recall is especially
+                        important because missed positive cases can
+                        have serious consequences.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =============================================================
+     FOOTER
+============================================================= -->
+
+<footer>
+
+    <div class="container">
+
+        <div class="footer-grid">
+
+            <div>
+
+                <div class="footer-brand">
+
+                    <div class="brand-icon">
+                        CL
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            ClassifyLab
+                        </strong>
+
+                        <div style="color:#999;font-size:12px;">
+                            Classification Algorithm Study
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <p>
+                    <strong>Vedant Dixit [CM24122]</strong>
+                </p>
+
+                <p>
+                    Guide: Mrs. Sweta Bokade
+                </p>
+
+                <p>
+                    S. B. Jain Institute of Technology,
+                    Management & Research, Nagpur
+                </p>
+
+                <p>
+                    Dept. of CSE (AI&ML)
+                </p>
+
+            </div>
+
+
+            <div>
+
+                <!--
+                    Replace this box with your college logo.
+
+                    Example:
+                    <img src="college-logo.png"
+                         class="college-logo">
+                -->
+
+                <div class="college-logo">
+                    SBJ<br>
+                    INSTITUTE<br>
+                    OF TECHNOLOGY
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="copyright">
+
+            <p>
+                © 2026 ClassifyLab · Academic Project
+            </p>
+
+        </div>
+
+    </div>
+
+</footer>
+
+
+<!-- =============================================================
+     JAVASCRIPT
+============================================================= -->
+
+<script>
+
+    /* =========================================================
+       LOADER
+    ========================================================= */
+
+    window.addEventListener("load", function () {
+
+        setTimeout(function () {
+
+            const loader =
+                document.getElementById("loader");
+
+            loader.style.opacity = "0";
+
+            setTimeout(function () {
+                loader.style.display = "none";
+            }, 500);
+
+        }, 800);
+
+    });
+
+
+    /* =========================================================
+       MOBILE MENU
+    ========================================================= */
+
+    function toggleMenu() {
+
+        const nav =
+            document.getElementById("navLinks");
+
+        nav.classList.toggle("active");
+
+    }
+
+
+    /* =========================================================
+       DARK MODE
+    ========================================================= */
+
+    function toggleTheme() {
+
+        document.body.classList.toggle("dark");
+
+    }
+
+
+    /* =========================================================
+       FILE UPLOAD
+    ========================================================= */
+
+    function showFileName() {
+
+        const fileInput =
+            document.getElementById("csvFile");
+
+        const fileName =
+            document.getElementById("fileName");
+
+        if (fileInput.files.length > 0) {
+
+            fileName.innerHTML =
+                "✓ Selected: " +
+                fileInput.files[0].name;
+
+        }
+
+    }
+
+
+    /* =========================================================
+       RUN COMPARISON
+    ========================================================= */
+
+    function runComparison() {
+
+        const message =
+            document.getElementById("runMessage");
+
+        const file =
+            document.getElementById("csvFile");
+
+        if (!file.files.length) {
+
+            message.style.display = "block";
+
+            message.innerHTML =
+                "Please upload a CSV dataset first.";
+
+            return;
+
+        }
+
+        message.style.display = "block";
+
+        message.innerHTML =
+            "✓ Dataset uploaded successfully. " +
+            "In the HTML-only version, this is a demonstration. " +
+            "Connect a Python/Flask backend to perform real model training.";
+
+    }
+
+
+    /* =========================================================
+       DOWNLOAD RESULTS
+    ========================================================= */
+
+    function downloadResults() {
+
+        const csv = `Algorithm,Accuracy,Precision,Recall,F1,ROC-AUC,CV Accuracy,Training Time
+SVM (RBF),98.25,98.20,97.60,97.90,99.10,97.85,0.032
+Logistic Regression,98.25,98.00,98.00,98.00,99.20,97.75,0.021
+Random Forest,97.37,97.10,96.50,96.80,98.70,96.90,0.089
+Gradient Boosting,96.49,96.20,95.80,96.00,98.30,96.10,0.074
+KNN,95.61,95.40,94.90,95.10,97.50,95.20,0.006
+Naive Bayes,94.74,94.50,93.90,94.20,97.10,94.30,0.004
+Decision Tree,91.23,90.80,89.70,90.20,91.60,90.80,0.009`;
+
+        const blob =
+            new Blob([csv], {type:"text/csv"});
+
+        const url =
+            URL.createObjectURL(blob);
+
+        const link =
+            document.createElement("a");
+
+        link.href = url;
+
+        link.download =
+            "classifylab-results.csv";
+
+        link.click();
+
+        URL.revokeObjectURL(url);
+
+    }
+
+
+    /* =========================================================
+       SORT TABLE
+    ========================================================= */
+
+    function sortTable(columnIndex) {
+
+        const table =
+            document.getElementById("resultsTable");
+
+        const tbody =
+            table.querySelector("tbody");
+
+        const rows =
+            Array.from(tbody.querySelectorAll("tr"));
+
+        rows.sort(function(a, b) {
+
+            let A =
+                a.children[columnIndex]
+                .innerText
+                .replace("%","")
+                .replace("s","");
+
+            let B =
+                b.children[columnIndex]
+                .innerText
+                .replace("%","")
+                .replace("s","");
+
+            const numberA =
+                parseFloat(A);
+
+            const numberB =
+                parseFloat(B);
+
+            if (!isNaN(numberA) &&
+                !isNaN(numberB)) {
+
+                return numberB - numberA;
+
+            }
+
+            return A.localeCompare(B);
+
+        });
+
+        rows.forEach(function(row) {
+            tbody.appendChild(row);
+        });
+
+    }
+
+
+    /* =========================================================
+       CHART DATA
+    ========================================================= */
+
+    const modelNames = [
+
+        "SVM (RBF)",
+        "Logistic Regression",
+        "Random Forest",
+        "Gradient Boosting",
+        "KNN",
+        "Naive Bayes",
+        "Decision Tree"
+
+    ];
+
+
+    const modelData = {
+
+        accuracy:
+            [98.25, 98.25, 97.37, 96.49, 95.61, 94.74, 91.23],
+
+        precision:
+            [98.20, 98.00, 97.10, 96.20, 95.40, 94.50, 90.80],
+
+        recall:
+            [97.60, 98.00, 96.50, 95.80, 94.90, 93.90, 89.70],
+
+        f1:
+            [97.90, 98.00, 96.80, 96.00, 95.10, 94.20, 90.20],
+
+        auc:
+            [99.10, 99.20, 98.70, 98.30, 97.50, 97.10, 91.60]
+
+    };
+
+
+    /* =========================================================
+       METRIC BAR CHART
+    ========================================================= */
+
+    let metricChart;
+
+    function createMetricChart(metric) {
+
+        const ctx =
+            document
+            .getElementById("metricChart")
+            .getContext("2d");
+
+        if (metricChart) {
+            metricChart.destroy();
+        }
+
+        metricChart =
+            new Chart(ctx, {
+
+                type: "bar",
+
+                data: {
+
+                    labels: modelNames,
+
+                    datasets: [{
+
+                        label: metric.toUpperCase(),
+
+                        data: modelData[metric],
+
+                        backgroundColor:
+                            "#2B7BBA",
+
+                        borderRadius: 7
+
+                    }]
+
+                },
+
+                options: {
+
+                    responsive: true,
+
+                    maintainAspectRatio: false,
+
+                    scales: {
+
+                        y: {
+
+                            beginAtZero: false,
+
+                            min: 85,
+
+                            max: 100
+
+                        }
+
+                    },
+
+                    plugins: {
+
+                        legend: {
+                            display: false
+                        }
+
+                    }
+
+                }
+
+            });
+
+    }
+
+
+    function updateMetricChart() {
+
+        const metric =
+            document.getElementById(
+                "metricSelect"
+            ).value;
+
+        createMetricChart(metric);
+
+    }
+
+
+    /* =========================================================
+       ROC CURVE
+    ========================================================= */
+
+    function createROCChart() {
+
+        const ctx =
+            document
+            .getElementById("rocChart")
+            .getContext("2d");
+
+        new Chart(ctx, {
+
+            type: "line",
+
+            data: {
+
+                labels: [
+                    0,
+                    0.1,
+                    0.2,
+                    0.3,
+                    0.4,
+                    0.5,
+                    0.6,
+                    0.7,
+                    0.8,
+                    0.9,
+                    1
+                ],
+
+                datasets: [
+
+                    {
+                        label: "SVM (RBF)",
+                        data: [
+                            0,
+                            0.78,
+                            0.88,
+                            0.93,
+                            0.96,
+                            0.975,
+                            0.985,
+                            0.99,
+                            0.995,
+                            1,
+                            1
+                        ],
+                        borderColor: "#2B7BBA",
+                        tension: 0.4
+                    },
+
+                    {
+                        label: "Logistic Regression",
+                        data: [
+                            0,
+                            0.75,
+                            0.87,
+                            0.92,
+                            0.95,
+                            0.97,
+                            0.982,
+                            0.988,
+                            0.994,
+                            1,
+                            1
+                        ],
+                        borderColor: "#C3D69B",
+                        tension: 0.4
+                    },
+
+                    {
+                        label: "Random Forest",
+                        data: [
+                            0,
+                            0.68,
+                            0.80,
+                            0.88,
+                            0.92,
+                            0.95,
+                            0.965,
+                            0.978,
+                            0.988,
+                            0.997,
+                            1
+                        ],
+                        borderColor: "#7E8790",
+                        tension: 0.4
+                    }
+
+                ]
+
+            },
+
+            options: {
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                scales: {
+
+                    x: {
+                        title: {
+                            display: true,
+                            text: "False Positive Rate"
+                        }
+                    },
+
+                    y: {
+                        title: {
+                            display: true,
+                            text: "True Positive Rate"
+                        },
+
+                        min: 0,
+                        max: 1
+                    }
+
+                }
+
+            }
+
+        });
+
+    }
+
+
+    /* =========================================================
+       SCATTER CHART
+    ========================================================= */
+
+    function createScatterChart() {
+
+        const ctx =
+            document
+            .getElementById("scatterChart")
+            .getContext("2d");
+
+        new Chart(ctx, {
+
+            type: "scatter",
+
+            data: {
+
+                datasets: [{
+
+                    label: "Models",
+
+                    data: [
+
+                        {
+                            x: 0.032,
+                            y: 98.25
+                        },
+
+                        {
+                            x: 0.021,
+                            y: 98.25
+                        },
+
+                        {
+                            x: 0.089,
+                            y: 97.37
+                        },
+
+                        {
+                            x: 0.074,
+                            y: 96.49
+                        },
+
+                        {
+                            x: 0.006,
+                            y: 95.61
+                        },
+
+                        {
+                            x: 0.004,
+                            y: 94.74
+                        },
+
+                        {
+                            x: 0.009,
+                            y: 91.23
+                        }
+
+                    ],
+
+                    backgroundColor: "#2B7BBA",
+
+                    pointRadius: 7
+
+                }]
+
+            },
+
+            options: {
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                scales: {
+
+                    x: {
+
+                        title: {
+                            display: true,
+                            text: "Training Time (seconds)"
+                        }
+
+                    },
+
+                    y: {
+
+                        title: {
+                            display: true,
+                            text: "Accuracy (%)"
+                        },
+
+                        min: 88,
+                        max: 100
+
+                    }
+
+                }
+
+            }
+
+        });
+
+    }
+
+
+    /* =========================================================
+       FEATURE IMPORTANCE
+    ========================================================= */
+
+    function createFeatureChart() {
+
+        const ctx =
+            document
+            .getElementById("featureChart")
+            .getContext("2d");
+
+        new Chart(ctx, {
+
+            type: "bar",
+
+            data: {
+
+                labels: [
+
+                    "Worst Radius",
+                    "Worst Perimeter",
+                    "Worst Area",
+                    "Mean Concavity",
+                    "Worst Concavity",
+                    "Mean Radius",
+                    "Mean Perimeter",
+                    "Worst Texture",
+                    "Mean Area",
+                    "Worst Smoothness"
+
+                ],
+
+                datasets: [{
+
+                    label: "Importance",
+
+                    data: [
+                        0.18,
+                        0.16,
+                        0.15,
+                        0.13,
+                        0.11,
+                        0.09,
+                        0.07,
+                        0.05,
+                        0.04,
+                        0.02
+                    ],
+
+                    backgroundColor: "#2B7BBA",
+
+                    borderRadius: 6
+
+                }]
+
+            },
+
+            options: {
+
+                indexAxis: "y",
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                plugins: {
+
+                    legend: {
+                        display: false
+                    }
+
+                }
+
+            }
+
+        });
+
+    }
+
+
+    /* =========================================================
+       CONFUSION MATRIX
+    ========================================================= */
+
+    const matrices = {
+
+        svm: [
+            [70, 1],
+            [1, 42]
+        ],
+
+        logistic: [
+            [70, 1],
+            [1, 42]
+        ],
+
+        forest: [
+            [69, 2],
+            [2, 41]
+        ],
+
+        tree: [
+            [65, 6],
+            [4, 39]
+        ]
+
+    };
+
+
+    function updateMatrix() {
+
+        const model =
+            document.getElementById(
+                "matrixModel"
+            ).value;
+
+        const values =
+            matrices[model];
+
+        const matrix =
+            document.getElementById("matrix");
+
+        matrix.innerHTML = `
+
+            <div style="
+                padding:30px;
+                background:#d9f0d0;
+                color:#214d28;
+                border-radius:12px;
+                text-align:center;
+            ">
+                <small>True Negative</small>
+                <strong style="
+                    display:block;
+                    font-size:28px;
+                ">
+                    ${values[0][0]}
+                </strong>
+            </div>
+
+            <div style="
+                padding:30px;
+                background:#f6d9d9;
+                color:#742d2d;
+                border-radius:12px;
+                text-align:center;
+            ">
+                <small>False Positive</small>
+                <strong style="
+                    display:block;
+                    font-size:28px;
+                ">
+                    ${values[0][1]}
+                </strong>
+            </div>
+
+            <div style="
+                padding:30px;
+                background:#f6d9d9;
+                color:#742d2d;
+                border-radius:12px;
+                text-align:center;
+            ">
+                <small>False Negative</small>
+                <strong style="
+                    display:block;
+                    font-size:28px;
+                ">
+                    ${values[1][0]}
+                </strong>
+            </div>
+
+            <div style="
+                padding:30px;
+                background:#d9f0d0;
+                color:#214d28;
+                border-radius:12px;
+                text-align:center;
+            ">
+                <small>True Positive</small>
+                <strong style="
+                    display:block;
+                    font-size:28px;
+                ">
+                    ${values[1][1]}
+                </strong>
+            </div>
+
+        `;
+
+    }
+
+
+    /* =========================================================
+       START CHARTS
+    ========================================================= */
+
+    window.addEventListener("load", function () {
+
+        createMetricChart("accuracy");
+
+        createROCChart();
+
+        createScatterChart();
+
+        createFeatureChart();
+
+        updateMatrix();
+
+    });
+
+</script>
+
+</body>
+</html>
+```
